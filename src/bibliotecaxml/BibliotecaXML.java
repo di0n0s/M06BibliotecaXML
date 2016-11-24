@@ -1,9 +1,11 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Ejemplo con sistema gestor XML nativo (eXist)
  */
 package bibliotecaxml;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.xmldb.api.base.XMLDBException;
 
 /**
  *
@@ -15,7 +17,17 @@ public class BibliotecaXML {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        try {
+            // Creamos el gestor y "establecemos conexión"
+            BibliotecaXND gestor = new BibliotecaXND();
+            System.out.println("Conexión establecida.");
+            Autor a = new Autor("Stephen King", "EEUU");
+            Libro l = new Libro("It", a, 300);
+            gestor.insertarLibro(l);
+            System.out.println("Libro insertado");
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | XMLDBException ex) {
+            System.out.println("Error con la BBDD: " + ex.getMessage());
+        }
     }
-    
+
 }
