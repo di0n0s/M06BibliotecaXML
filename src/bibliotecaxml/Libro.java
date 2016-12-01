@@ -13,6 +13,11 @@ public class Libro {
     private Autor autor;
     private int npags;
 
+    public Libro() {
+    }
+    
+    
+
     public Libro(String titulo, Autor autor, int npags) {
         this.titulo = titulo;
         this.autor = autor;
@@ -45,5 +50,12 @@ public class Libro {
     public void setTitulo(String titulo) {
         this.titulo = titulo;
     }
+
+    @Override
+    public String toString() {
+        return "Libro{" + "titulo=" + titulo + ", autor=" + autor + ", npags=" + npags + '}';
+    }
+    
+    
 
 }

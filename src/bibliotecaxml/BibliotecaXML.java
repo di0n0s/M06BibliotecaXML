@@ -3,8 +3,7 @@
  */
 package bibliotecaxml;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.List;
 import org.xmldb.api.base.XMLDBException;
 
 /**
@@ -21,10 +20,14 @@ public class BibliotecaXML {
             // Creamos el gestor y "establecemos conexión"
             BibliotecaXND gestor = new BibliotecaXND();
             System.out.println("Conexión establecida.");
-            Autor a = new Autor("Stephen King", "EEUU");
-            Libro l = new Libro("It", a, 300);
+            Autor a = new Autor("Michael Ende", "EEUU");
+            Libro l = new Libro("La Historia Interminable", a, 500);
             gestor.insertarLibro(l);
             System.out.println("Libro insertado");
+            List<Libro> libros = gestor.selectAllLibros();
+            for (Libro libro : libros) {
+                System.out.println(libro);
+            }
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | XMLDBException ex) {
             System.out.println("Error con la BBDD: " + ex.getMessage());
         }
