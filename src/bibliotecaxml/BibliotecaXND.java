@@ -39,19 +39,30 @@ public class BibliotecaXND {
         DatabaseManager.registerDatabase(database);
     }
 
-    public void insertarLibro(Libro miLibro) throws XMLDBException {
-        String consulta = "update insert <Libro> <Titulo>" + miLibro.getTitulo() + "</Titulo>"
-                + "<Autor>" + miLibro.getAutor().getNombre() + "</Autor>"
-                + "<Npags>" + miLibro.getNpags() + "</Npags></Libro> into /Libros";
-        ejecutarConsultaUpdate(colecLibros, consulta);
+    public boolean insertarLibro(Libro miLibro) throws XMLDBException {
+        if (!existeLibro(miLibro)) {
+            String consulta = "update insert <Libro> <Titulo>" + miLibro.getTitulo() + "</Titulo>"
+                    + "<Autor>" + miLibro.getAutor().getNombre() + "</Autor>"
+                    + "<Npags>" + miLibro.getNpags() + "</Npags></Libro> into /Libros";
+            ejecutarConsultaUpdate(colecLibros, consulta);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean existeLibro(Libro l) throws XMLDBException {
+        String consulta = "for $t in //Libros/Libro/Titulo where $t='" + l.getTitulo() + "' return $t";
+        ResourceSet resultado = ejecutarConsultaXQuery(colecLibros, consulta);
+        return resultado.getSize() > 0;
     }
 
     public void modificarLibro(Libro miLibro) throws XMLDBException {
         // Deberíamos verificar antes que el libro existe
-        String consulta = "update replace /Libros/Libro[Titulo=\"" + miLibro.getTitulo() + "\"]/Autor "
+        String consulta = "update replace /Libros/Libro[Titulo='" + miLibro.getTitulo() + "']/Autor "
                 + "with <Autor>" + miLibro.getAutor().getNombre() + "</Autor>";
         ejecutarConsultaUpdate(colecLibros, consulta);
-        consulta = "update replace /Libros/Libro[Titulo=\"" + miLibro.getTitulo() + "\"]/Npags "
+        consulta = "update replace /Libros/Libro[Titulo='" + miLibro.getTitulo() + "']/Npags "
                 + "with <Npags>" + miLibro.getNpags() + "</Npags>";
         ejecutarConsultaUpdate(colecLibros, consulta);
     }
@@ -66,7 +77,6 @@ public class BibliotecaXND {
             XMLResource res = (XMLResource) iterador.nextResource();
             // Tenemos que leer el resultado como un DOM
             Node nodo = res.getContentAsDOM();
-            System.out.println(nodo.getNodeName());
             // Leemos la lista de hijos que son tipo Libro
             NodeList hijo = nodo.getChildNodes();
             // Leemos los hijos del Libro
@@ -75,6 +85,50 @@ public class BibliotecaXND {
             todosLosLibros.add(l);
         }
         return todosLosLibros;
+    }
+
+    // Método para seleccionar libros por autor
+    public List<Libro> selectLibrosByAutor(Autor a) throws XMLDBException {
+        List<Libro> libros = new ArrayList<>();
+        String consulta = "for $l in //Libros/Libro let $autor := $l/Autor where $autor='"
+                + a.getNombre() + "'  return $l";
+        ResourceSet resultado = ejecutarConsultaXQuery(colecLibros, consulta);
+        ResourceIterator iterador = resultado.getIterator();
+        while (iterador.hasMoreResources()) {
+            XMLResource res = (XMLResource) iterador.nextResource();
+            // Tenemos que leer el resultado como un DOM
+            Node nodo = res.getContentAsDOM();
+            // Leemos la lista de hijos que son tipo Libro
+            NodeList hijo = nodo.getChildNodes();
+            // Leemos los hijos del Libro
+            NodeList datosLibro = hijo.item(0).getChildNodes();
+            Libro l = leerDomLibro(datosLibro);
+            libros.add(l);
+        }
+
+        return libros;
+    }
+
+    // Método para seleccionar libros por autor
+    public List<Libro> selectLibrosByAutorNumPags(Autor a, int numPags) throws XMLDBException {
+        List<Libro> libros = new ArrayList<>();
+        String consulta = "for $l in //Libros/Libro let $autor := $l/Autor let $pags := $l/Npags "
+                + "where $autor='" + a.getNombre() + "' and $pags =" + numPags + " return $l";
+        ResourceSet resultado = ejecutarConsultaXQuery(colecLibros, consulta);
+        ResourceIterator iterador = resultado.getIterator();
+        while (iterador.hasMoreResources()) {
+            XMLResource res = (XMLResource) iterador.nextResource();
+            // Tenemos que leer el resultado como un DOM
+            Node nodo = res.getContentAsDOM();
+            // Leemos la lista de hijos que son tipo Libro
+            NodeList hijo = nodo.getChildNodes();
+            // Leemos los hijos del Libro
+            NodeList datosLibro = hijo.item(0).getChildNodes();
+            Libro l = leerDomLibro(datosLibro);
+            libros.add(l);
+        }
+
+        return libros;
     }
 
     // Método auxiliar que lee los datos de un Libro
