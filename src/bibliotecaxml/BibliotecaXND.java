@@ -46,6 +46,16 @@ public class BibliotecaXND {
         ejecutarConsultaUpdate(colecLibros, consulta);
     }
 
+    public void modificarLibro(Libro miLibro) throws XMLDBException {
+        // Deberíamos verificar antes que el libro existe
+        String consulta = "update replace /Libros/Libro[Titulo=\"" + miLibro.getTitulo() + "\"]/Autor "
+                + "with <Autor>" + miLibro.getAutor().getNombre() + "</Autor>";
+        ejecutarConsultaUpdate(colecLibros, consulta);
+        consulta = "update replace /Libros/Libro[Titulo=\"" + miLibro.getTitulo() + "\"]/Npags "
+                + "with <Npags>" + miLibro.getNpags() + "</Npags>";
+        ejecutarConsultaUpdate(colecLibros, consulta);
+    }
+
     // Función que devuelve los datos de todos los libros con el nombre del autor
     public List<Libro> selectAllLibros() throws XMLDBException {
         String consulta = "for $l in //Libros/Libro return $l";
@@ -77,7 +87,7 @@ public class BibliotecaXND {
                 switch (contador) {
                     case 1:
                         l.setTitulo(ntemp.getChildNodes().item(0).getNodeValue());
-                        contador ++;
+                        contador++;
                         break;
                     case 2:
                         Autor a = new Autor(ntemp.getChildNodes().item(0).getNodeValue());
